@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roblox 分享链接转换器 · 一键打开</title>
+    <style>
+        body { font-family: system-ui, sans-serif; background: #1e1e2f; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 16px; }
+        .card { background: #2c2c3a; border-radius: 24px; padding: 32px; width: 100%; max-width: 550px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+        h2 { color: white; margin-top: 0; margin-bottom: 20px; }
+        label { color: #ccc; display: block; margin-bottom: 6px; }
+        input { width: 100%; padding: 14px 18px; border-radius: 40px; border: 1px solid #444; background: #1a1a28; color: white; font-size: 1rem; outline: none; margin-bottom: 20px; box-sizing: border-box; }
+        input:focus { border-color: #7b68ee; }
+        .button-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .button-row button {
+            flex: 1;
+            padding: 14px 0;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+            border: none;
+        }
+        #convertBtn {
+            background: #7b68ee;
+            color: white;
+            border: 1px solid #9b89ff;
+        }
+        #convertBtn:hover {
+            background: #8b79ff;
+            transform: translateY(-2px);
+        }
+        #openBtn {
+            background: #3a3a5a;
+            color: white;
+            border: 1px solid #555;
+        }
+        #openBtn:hover {
+            background: #4a4a70;
+            transform: translateY(-2px);
+        }
+        #openBtn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .result {
+            background: #0f0f1a;
+            border-radius: 20px;
+            padding: 16px;
+            color: #b0e0ff;
+            word-break: break-all;
+            border: 1px solid #3f3f60;
+            font-family: monospace;
+            user-select: all;
+            margin-top: 20px;
+        }
+        .footer { margin-top: 20px; color: #888; font-size: 0.8rem; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>🎮 Roblox 分享链接转换器</h2>
+        <label>🔗 输入分享链接</label>
+        <input type="url" id="inputUrl" placeholder="https://www.roblox.com/share?code=xxx&type=Server" value="https://www.roblox.com/share?code=f695799d7dab5d40af6a07cff27bc717&type=Server">
+
+        <div class="button-row">
+            <button id="convertBtn">🔄 转换并复制</button>
+            <button id="openBtn" disabled>⚡ 打开游戏</button>
+        </div>
+
+        <div class="result" id="result">点击转换生成链接</div>
+        <div class="footer">
+            生成格式：roblox://navigation/share_links?code=...&type=Server<br>
+            ✨ 制作人：花港.
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            const inputUrl = document.getElementById('inputUrl');
+            const convertBtn = document.getElementById('convertBtn');
+            const openBtn = document.getElementById('openBtn');
+            const resultDiv = document.getElementById('result');
+
+            let currentRobloxLink = ''; // 保存最新生成的链接
+
+            // 转换函数
+            function convert() {
+                const urlInput = inputUrl.value.trim();
+                if (!urlInput) {
+                    alert('请输入链接');
+                    return;
+                }
+
+                try {
+                    const parsed = new URL(urlInput);
+                    const code = parsed.searchParams.get('code');
+                    if (!code) {
+                        alert('链接中没有找到 code 参数');
+                        return;
+                    }
+                    const type = parsed.searchParams.get('type') || 'Server';
+
+                    const robloxLink = `roblox://navigation/share_links?code=${encodeURIComponent(code)}&type=${encodeURIComponent(type)}`;
+                    resultDiv.innerText = robloxLink;
+                    currentRobloxLink = robloxLink;
+
+                    // 启用打开按钮
+                    openBtn.disabled = false;
+
+                    // 复制到剪贴板
+                    navigator.clipboard.writeText(robloxLink).then(() => {
+                        convertBtn.innerText = '✅ 已复制';
+                        setTimeout(() => convertBtn.innerText = '🔄 转换并复制', 1500);
+                    }).catch(() => {
+                        alert('复制失败，请手动复制');
+                    });
+                } catch (e) {
+                    alert('无效的 URL');
+                }
+            }
+
+            // 打开游戏
+            function openGame() {
+                if (!currentRobloxLink) {
+                    alert('请先转换生成链接');
+                    return;
+                }
+                // 尝试打开 roblox 协议
+                window.location.href = currentRobloxLink;
+                // 注意：浏览器可能会弹出确认框，这是正常的
+            }
+
+            convertBtn.addEventListener('click', convert);
+            openBtn.addEventListener('click', openGame);
+
+            // 可选：输入框回车直接转换
+            inputUrl.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    convert();
+                }
+            });
+        })();
+    </script>
+</body>
+</html>
